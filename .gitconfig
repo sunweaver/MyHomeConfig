@@ -1,0 +1,9 @@
+[user]
+	name = Mike Gabriel
+	email = mike.gabriel@das-netzwerkteam.de
+[color]
+	ui = auto
+[pull]
+	rebase = true
+[push]
+	default = matching
