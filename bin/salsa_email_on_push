@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -e
+
+. ~/.salsarc
+
+if [ "$#" -eq 0 ] || [ "$#" -gt 2 ] || [ -z "$1" ]; then
+  echo "Usage: $0 pkg-foo/bar [recipient ...]" >&2
+  echo "  where 'pkg-foo/bar' is the Salsa project name for which you want to setup email notifications for [recipients]." >&2
+  echo "  If recipients is empty, then this script will use 'dispatch@tracker.debian.org'" >&2
+  exit 1
+fi
+
+PROJECT_NAME="$1"
+PROJECT_PATH="${PROJECT_NAME//\//%2F}"
+if [ -z "$2" ]; then
+    RECIPIENTS="dispatch@tracker.debian.org"
+else
+    RECIPIENTS="$2"
+fi
+RECIPIENTS=${RECIPIENTS//+/%2B} # Encode the '+' symbol (e.g. in dispatch+package_vcs@tracker.debian.org)
+
+PROJECT_ID=$(curl --silent -f -XGET --header "PRIVATE-TOKEN: $SALSA_TOKEN" "$SALSA_URL/projects/$PROJECT_PATH" | jq '.id')
+if [ -z "$PROJECT_ID" ]; then
+    echo "Project $PROJECT_NAME not found among your owned projects on $SALSA_URL service" >&2
+    exit 1
+else
+    echo "Setting up emails_on_push service for $PROJECT_NAME ($PROJECT_ID)"
+fi
+
+case $PROJECT_ID in
+    ''|*[!0-9]*) echo "$PROJECT_NAME not found using $SALSA_URL service" ;;
+    *) curl -XPUT --header "PRIVATE-TOKEN: $SALSA_TOKEN" \
+    $SALSA_URL/projects/$PROJECT_ID/services/emails-on-push \
+    --data "recipients=$RECIPIENTS"
+       if [ $? -eq 0 ]; then
+           echo
+           echo "All done."
+       else
+           echo
+           echo "Something went wrong!"
+       fi;;
+esac

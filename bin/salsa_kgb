@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -eu
+
+# Copyright (C) 2018 Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+
+. ~/.salsarc
+
+if [ "$#" -ne 2 ] || [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: $0 pkg-bar/foo debian-bar" >&2
+  echo "  where 'pkg-bar/foo' is the Salsa project name for which you want to setup irc notifications on channel #debian-bar" >&2
+  exit 1
+fi
+
+urlencode() {
+    local LANG=C i c e=''
+    for ((i=0;i<${#1};i++)); do
+        c=${1:$i:1}
+	[[ "$c" =~ [a-zA-Z0-9\.\~\_\-] ]] || printf -v c '%%%02X' "'$c"
+        e+="$c"
+    done
+    echo "$e"
+}
+
+PROJECT_NAME="$1"
+PROJECT_PATH="${PROJECT_NAME//\//%2F}"
+# no hash allowed in channel names
+IRC_CHANNEL="$(echo $2 | sed -e 's/#//')"
+IRKER_URL="ruprecht.snow-crash.org"
+
+PROJECT_ID=$(curl --silent -f -XGET --header "PRIVATE-TOKEN: $SALSA_TOKEN" "$SALSA_URL/projects/$PROJECT_PATH" | jq '.id')
+if [ -z "$PROJECT_ID" ]; then
+    echo "Project $PROJECT_NAME not found among your owned projects on $SALSA_URL service" >&2
+    exit 1
+else
+    echo "Setting up KGB integration for $PROJECT_NAME ($PROJECT_ID)"
+fi
+
+case $PROJECT_ID in
+    ''|*[!0-9]*) echo "$PROJECT_NAME not found using $SALSA_URL service" ;;
+    *) url=$(urlencode "http://kgb.debian.net:9418/webhook/?channel=${IRC_CHANNEL}&network=oftc&private=1&use_color=1&use_irc_notices=1&squash_threshold=20")
+       curl -XPOST --header "PRIVATE-TOKEN: $SALSA_TOKEN" $SALSA_URL/projects/$PROJECT_ID/hooks \
+	           --data "url=${url}&push_events=yes&issues_events=yes&merge_requests_events=yes&tag_push_events=yes&note_events=yes&job_events=yes&pipeline_events=yes&wiki_events=yes&enable_ssl_verification=yes"
+       if [ $? -eq 0 ]; then
+           echo
+           echo "All done."
+       else
+           echo
+           echo "Something went wrong!"
+       fi;;
+esac
+

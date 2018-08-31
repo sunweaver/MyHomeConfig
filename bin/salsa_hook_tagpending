@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -eu
+
+. ~/.salsarc
+
+check_return_code() {
+    if [ $? -eq 0 ]; then
+	echo
+	echo "All done."
+    else
+	echo
+	echo "Something went wrong!"
+	exit 1
+    fi
+}
+
+if [ "$#" -ne 1 ] || [ -z "$1" ]; then
+    echo "Usage: $0 pkg-foo/bar" >&2
+    echo "  where 'pkg-foo/bar' is the Salsa project name for which you want to setup the webhook" >&2
+    exit 1
+fi
+
+PROJECT_NAME="$1"
+SRC_NAME="${PROJECT_NAME##*/}"
+PROJECT_PATH="${PROJECT_NAME//\//%2F}"
+TAGPENDING_URL="https://webhook.salsa.debian.org/tagpending/$SRC_NAME"
+
+PROJECT_ID=$(curl --silent -f -XGET --header "PRIVATE-TOKEN: $SALSA_TOKEN" "$SALSA_URL/projects/$PROJECT_PATH" | jq '.id')
+if [ -z "$PROJECT_ID" ]; then
+    echo "Project $PROJECT_NAME not found among your owned projects on $SALSA_URL service" >&2
+    exit 1
+fi
+
+ALREADY_HOOKED=$(curl --silent -f -XGET --header "PRIVATE-TOKEN: $SALSA_TOKEN" $SALSA_URL/projects/$PROJECT_ID/hooks | jq ".[] | select(.url == \"$TAGPENDING_URL\") | .id")
+
+case $ALREADY_HOOKED in
+    [0-9]*)
+	echo "Reconfiguring existing tagpending webhook for $PROJECT_NAME ($PROJECT_ID)"
+	curl -XPUT --header "PRIVATE-TOKEN: $SALSA_TOKEN" \
+	    $SALSA_URL/projects/$PROJECT_ID/hooks/$ALREADY_HOOKED \
+	    --data "url=$TAGPENDING_URL&push_events=1&tag_push_events=0&merge_requests_events=0&enable_ssl_verification=1"
+	check_return_code
+	;;
+    *)
+	echo "Setting up tagpending webhook for $PROJECT_NAME ($PROJECT_ID)"
+	curl -XPOST --header "PRIVATE-TOKEN: $SALSA_TOKEN" \
+	    $SALSA_URL/projects/$PROJECT_ID/hooks \
+	    --data "url=$TAGPENDING_URL&push_events=1&enable_ssl_verification=1"
+	check_return_code
+	;;
+esac
+
