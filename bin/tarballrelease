@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Copyright (C) 2015 by Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+#
+# This is free software; you can redistribute it and/or modify
+# it under the tBerms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+
+# Thanks to Jonas Smedegaard <dr@jones.dk> for inspiration...
+
+set -e
+
+RELEASE="$1"
+test -n "$RELEASE" || { echo "usage: $(basename "$0") <release-version> [<checkout>]"; exit 1; }
+
+CHECKOUT="${2:-master}"
+
+PROJECT="$(basename $PWD)"
+
+TARGETDIR=".."
+while [ ! -d "${TARGETDIR}/_releases_" ]; do
+        TARGETDIR="${TARGETDIR}/.."
+done
+
+MANIFEST="$(mktemp)"
+TEMP_DIR="$(mktemp -d)"
+
+echo $MANIFEST
+
+trap "rm -f \"${MANIFEST}\"; rm -rf \"${TEMP_DIR}\"" 0
+git clone . "$TEMP_DIR/${PROJECT}-$RELEASE"
+( set -e; cd "$TEMP_DIR/${PROJECT}-$RELEASE/" && git checkout ${CHECKOUT} 2>/dev/null )
+( set -e; cd "$TEMP_DIR" && rm -Rf "${PROJECT}-$RELEASE/.git"* )
+( set -e; cd "$TEMP_DIR/${PROJECT}-$RELEASE/" && test -f ChangeLog || { test -f debian/changelog && cp debian/changelog ChangeLog || true; } )
+( set -e; cd "$TEMP_DIR/${PROJECT}-$RELEASE/" && rm -Rf debian/ )
+( set -e; cd "$TEMP_DIR/${PROJECT}-$RELEASE/" && rm -f *.spec )
+( set -e; cd "$TEMP_DIR/" && find "${PROJECT}-$RELEASE" -type f | sed 's/^\.*\/*//' | sort > "$MANIFEST" )
+mkdir -p "$TARGETDIR/_releases_/source/${PROJECT}/"
+tar c -C "$TEMP_DIR" --owner 0 --group 0 --numeric-owner --no-recursion --files-from "$MANIFEST" | gzip -n > "$TARGETDIR/_releases_/source/${PROJECT}/${PROJECT}-$RELEASE.tar.gz"

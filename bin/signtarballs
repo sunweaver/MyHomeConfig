@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Copyright (C) 2018 Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+
+d=. ; while [ ! -d $d/_releases_ -a `readlink -e $d` != / ]; do d=$d/..; done
+
+find $d/_releases_  -type f | egrep ".*(\.zip|\.tar\.gz|\.exe|\.dmg)$" | while read tarball; do
+	test -f "${tarball}.md5" || { printf "md5: "; md5sum "${tarball}" | tee "${tarball}.md5"; }
+	test -f "${tarball}.sha1" || { printf "sha1: "; sha1sum "${tarball}" | tee "${tarball}.sha1"; }
+	test -f "${tarball}.sha256" || { printf "sha256: "; sha256sum "${tarball}" | tee "${tarball}.sha256"; }
+	test -f "${tarball}.sha512" || { printf "sha512: "; sha512sum "${tarball}" | tee "${tarball}.sha512"; }
+	test -f "${tarball}.asc" || { printf "signing ${tarball}... "; gpg -a -b --sign "${tarball}"; printf 'done.\n'; }
+done
