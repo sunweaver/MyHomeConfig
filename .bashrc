@@ -107,17 +107,18 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-export DEBFULLNAME="Mike Gabriel"
-export DEBUSER="sunweaver"
 export EMAIL="mike.gabriel@das-netzwerkteam.de"
 
-export DEBEMAIL=${EMAIL}
+export DEBFULLNAME="Mike Gabriel"
+export DEBUSER="sunweaver"
+export DEBEMAIL="${EMAIL}"
 export DEBSIGN_KEYID=0x25771B31
 
 alias dquilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
-alias lintian='lintian -iIE --pedantic --show-overrides --color auto'
+alias lintian='lintian -iIE --pedantic --show-overrides --color auto --no-tag-display-limit'
 alias debcommit='{ dquilt pop -a || [ $? = 2 ]; } && debcommit' 
 alias ldap_nobase64='awk '\''BEGIN{FS=":: ";c="base64 -d"}{if(/\w+:: /) {print $2 |& c; close(c,"to"); c |& getline $2; close(c); printf("%s: %s\n", $1, $2); next} print $0 }'\'''
+alias bd="bd -si"
 
 if [ -r  ~/.git-prompt ]; then 
 	. ~/.git-prompt
@@ -125,6 +126,7 @@ if [ -r  ~/.git-prompt ]; then
 fi
 
 alias mutt-debian="mutt -F $HOME/.mutt/muttrc-debian"
+alias mutt-kath="mutt -F $HOME/.mutt/muttrc-kath"
 alias mutt-nwt="mutt -F $HOME/.mutt/muttrc-nwt"
 alias mutt-rohloff="mutt -F $HOME/.mutt/muttrc-rohloff"
 alias mutt-BITadminch="mutt -F $HOME/.mutt/muttrc-bitadminch+x2go"
