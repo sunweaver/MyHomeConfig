@@ -31,6 +31,6 @@ for branch in `git branch | grep -v '*'`; do
 	git branch -D "${branch}"
 done
 git --no-pager log --since "1970" --format="%ai %aN (%h)%n%n%x09*%w(68,0,10) %s%d%n" | \
-    sed -r -e "1 s/(.*)\([0-9a-f]{7,10}\)$/\1/" | \
+    sed -r -e "1 s/(.*)\([0-9a-f]{7,10}\)$/\1/" \
     > ${THIS_GIT}/ChangeLog
 cd - 1>/dev/null
