@@ -32,6 +32,7 @@ if [ -d "$d/.git" ]; then
 		git add ChangeLog
 	fi
 	~/bin/mkchangelog
+	if [ -e NEWS ]; then editor NEWS; fi
 	git commit -a -m "release $VERSION"
 	git tag "$VERSION" -m "Release $VERSION"
 	~/bin/mkchangelog
