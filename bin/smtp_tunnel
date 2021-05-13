@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -x
+
+OPTIONS="-M0 -N -lmike -p32032 grimnir.das-netzwerkteam.de -i ~/.ssh/id_rsa -L 32025:localhost:25"
+
+prev_pid=$(ps -x | grep autossh | grep -- "$OPTIONS" | head -n1 | awk '{ print $1 }')
+
+if [ "$1" = "up" ] || [ -z "$1" ]; then
+
+	[ -n "$prev_pid" ] && kill $prev_pid 2>/dev/null
+	autossh -f $OPTIONS
+
+elif [ "$1" = "down" ]; then
+
+	[ -n "$prev_pid" ] && kill $prev_pid 2>/dev/null
+
+else
+
+	echo "$(basename $0): Unknown argument."
+
+fi
+
