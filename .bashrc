@@ -126,6 +126,7 @@ alias dquilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
 alias lintian='lintian -iIE --pedantic --show-overrides --color auto --no-tag-display-limit'
 alias debcommit='{ dquilt pop -a || [ $? = 2 ]; } && debcommit' 
 alias ldap_nobase64='awk '\''BEGIN{FS=":: ";c="base64 -d"}{if(/\w+:: /) {print $2 |& c; close(c,"to"); c |& getline $2; close(c); printf("%s: %s\n", $1, $2); next} print $0 }'\'''
+alias get-orig-source='uscan --noconf --force-download --rename --download-current-version --destdir=..'
 alias bd="bd -si"
 
 if [ -r  ~/.git-prompt ]; then 
