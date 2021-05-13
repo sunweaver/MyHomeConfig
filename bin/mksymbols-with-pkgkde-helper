@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -x
+
+[ -d debian ] || exit 1
+[ -e debian/control ] || exit 1
+[ -e debian/changelog ] || exit 1
+
+UPSTREAM_VERSION=$(dpkg-parsechangelog | grep -E "^Version:" | awk '{ print $2 }' | cut -d"-" -f1)
+
+if [ -n "$1" ]; then
+        pkgs=$1
+else
+        pkgs=$(cat debian/control | grep -E "^Package:" | awk '{ print $2 }' | grep -E "^lib.*[0-9]+$")
+fi
+
+echo $pkgs | sed -e 's/ /\n/g' | while read libpkg; do
+        if [ ! -d debian/$libpkg ]; then
+            echo "shared library bin:pkg $libpkg not built"
+            continue
+        fi
+        so_file=`echo $libpkg | sed -r -e 's/^(lib[a-z]+)([0-9]+)$/\1.so.\2/'`
+        pkgkde-gensymbols -p$libpkg -v$UPSTREAM_VERSION -Osymbols.amd64 -edebian/$libpkg/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/$so_file
+        pkgkde-symbolshelper create -o debian/$libpkg.symbols -v $UPSTREAM_VERSION symbols.amd64
+        rm symbols.amd64
+done
