@@ -1,36 +1,63 @@
-#!/bin/bash
+#!/bin/sh
 
-set -e
-
-# Copyright (C) 2018 Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+# Copyright (C) 2021 UBports Foundation
+# Author: Ratchanan Srirattanamet
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the
-# Free Software Foundation, Inc.,
-# 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-TMPDIR=`mktemp -d`
-THIS_GIT=`pwd`
-TEMP_GIT="${TMPDIR}/$(basename ${THIS_GIT})"
+# Generate a ChangeLog file in the format of GNU ChangeLog (-ish) from git.
+# Prints directly to stdout. Change directory to the git repository before
+# running the script.
 
-git clone --bare ${THIS_GIT} ${TEMP_GIT}
+git --no-pager log --since "1970" \
+        --format="%as %aN%n        *%w(68,0,10) %s (%h)%(trailers:key=Fixes)" "$@"| awk '
+    /^[-0-9]+/ { # Would love to match date fully here, but mawk does not support {}.
+                 # Works anyway, as other lines starts with a space.
+        if (dateauthor == $0) {
+            next
+        } else {
+            # dateauthor will be blank first time around
+            if (dateauthor != "") {
+                print ""
+            }
+            print $0
+            print ""
 
-cd ${TEMP_GIT}
-git remote remove origin
-for branch in `git branch | grep -v '*'`; do
-	git branch -D "${branch}"
-done
-git --no-pager log --since "1970" --format="%ai %aN (%h)%n%n%x09*%w(68,0,10) %s%d%n" | \
-    sed -r -e "1 s/(.*)\([0-9a-f]{7,10}\)$/\1/" \
-    > ${THIS_GIT}/ChangeLog
-cd - 1>/dev/null
+            dateauthor = $0
+            next
+        }
+    }
+    # Special case: the release changelog entry cannot have a commit hash in
+    # it. The setup is that we will create a temporary commit that produces the
+    # release, re-generate the changelog, and then amend the commit to include
+    # the ChangeLog file, which means (if only run at release time) the release
+    # commit/changelog entry is the first one, which is the second line in
+    # `git log` output.
+    NR == 2 {
+        # Again, mawk does not support {}. Abbreviated git hash is 4 or more
+        # letters, so this is to increase confidence that we are matching
+        # git hash.
+        gsub(/ \([0-9a-f][0-9a-f][0-9a-f][0-9a-f]+\)/, "", $0)
+    }
+    {
+        # Give the Fixes statement its own line.
+        gsub(/Fixes:/, "\n          Fixes:", $0)
+        print $0
+    }
+' | sed --null-data -E -e 's/\n{3,}/\n\n/g' # Eliminate extra newlines
