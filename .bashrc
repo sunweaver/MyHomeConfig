@@ -148,3 +148,13 @@ alias mutt-rohloff="neomutt -F $HOME/.mutt/muttrc-rohloff"
 alias mutt-BITadminch="neomutt -F $HOME/.mutt/muttrc-bitadminch+x2go"
 
 export VISUAL=mcedit
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] && echo "$PATH:" | grep -qv "$HOME/bin:"; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] && echo "$PATH:" | grep -qv "$HOME/bin:"; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
