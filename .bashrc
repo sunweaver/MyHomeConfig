@@ -146,3 +146,5 @@ alias mutt-kath="neomutt -F $HOME/.mutt/muttrc-kath"
 alias mutt-nwt="neomutt -F $HOME/.mutt/muttrc-nwt"
 alias mutt-rohloff="neomutt -F $HOME/.mutt/muttrc-rohloff"
 alias mutt-BITadminch="neomutt -F $HOME/.mutt/muttrc-bitadminch+x2go"
+
+export VISUAL=mcedit
