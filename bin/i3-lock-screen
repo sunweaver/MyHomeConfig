@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mate-screensaver-command -i &
+PID=$!
+i3lock -n -c 402020 -f -e -I 5
+kill $PID
