@@ -17,5 +17,8 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
-xrandr --output HDMI-2 --auto --right-of eDP-1
-xrandr --output eDP-1 --primary
+eDP=$(xrandr | grep eDP | head -n1 | cut -d" " -f1)
+HDMI=$(xrandr | grep HDMI | head -n1 | cut -d" " -f1)
+
+xrandr --output "${HDMI}" --auto --right-of "${eDP}"
+xrandr --output "${HDMI}" --primary
