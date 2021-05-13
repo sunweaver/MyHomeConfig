@@ -130,12 +130,12 @@ export DEBSIGN_KEYID=0x25771B31
 
 alias dquilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
 alias lintian='lintian -iIE --pedantic --show-overrides --color auto --no-tag-display-limit'
-alias debcommit='{ dquilt pop -a || [ $? = 2 ]; } && debcommit' 
+alias debcommit='{ dquilt pop -a || [ $? = 2 ]; } && debcommit'
 alias ldap_nobase64='awk '\''BEGIN{FS=":: ";c="base64 -d"}{if(/\w+:: /) {print $2 |& c; close(c,"to"); c |& getline $2; close(c); printf("%s: %s\n", $1, $2); next} print $0 }'\'''
 alias get-orig-source='uscan --noconf --force-download --rename --download-current-version --destdir=..'
 alias bd="bd -si"
 
-if [ -r  ~/.git-prompt ]; then 
+if [ -r  ~/.git-prompt ]; then
 	. ~/.git-prompt
 	PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 fi
