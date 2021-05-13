@@ -140,8 +140,9 @@ if [ -r  ~/.git-prompt ]; then
 	PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 fi
 
-alias mutt-debian="mutt -F $HOME/.mutt/muttrc-debian"
-alias mutt-kath="mutt -F $HOME/.mutt/muttrc-kath"
-alias mutt-nwt="mutt -F $HOME/.mutt/muttrc-nwt"
-alias mutt-rohloff="mutt -F $HOME/.mutt/muttrc-rohloff"
-alias mutt-BITadminch="mutt -F $HOME/.mutt/muttrc-bitadminch+x2go"
+alias mutt="neomutt"
+alias mutt-debian="neomutt -F $HOME/.mutt/muttrc-debian"
+alias mutt-kath="neomutt -F $HOME/.mutt/muttrc-kath"
+alias mutt-nwt="neomutt -F $HOME/.mutt/muttrc-nwt"
+alias mutt-rohloff="neomutt -F $HOME/.mutt/muttrc-rohloff"
+alias mutt-BITadminch="neomutt -F $HOME/.mutt/muttrc-bitadminch+x2go"
