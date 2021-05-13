@@ -32,6 +32,11 @@ if [ -d "$d/.git" ]; then
 		git add ChangeLog
 	fi
 	~/bin/mkchangelog
+	if [ ! -e AUTHORS ]; then
+		touch AUTHORS
+		git add AUTHORS
+	fi
+	~/bin/mkauthors
 	if [ -e NEWS ]; then editor NEWS; fi
 	git commit -a -m "release $VERSION"
 	git tag "$VERSION" -m "Release $VERSION"
