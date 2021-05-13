@@ -1,0 +1,3 @@
+#include ".Xresources.d/color-solarized"
+#include ".Xresources.d/font-terminus"
+

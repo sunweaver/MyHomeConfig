@@ -1,0 +1,66 @@
+!! use terminus in terminal emulators
+!! Depends: xfonts-terminus
+!! Recommends: xfonts-efont-unicode
+!! Suggests: xfonts-terminus-oblique xfonts-efont-unicode-ib
+
+!! test a font in current URxvt: echo -e "\033]710;fixed\033\\"
+!! test bitmapped fonts: xfontsel -print
+!! list relevant Xft fonts: fc-list :scalable=true:spacing=mono: family
+
+!! single fonts, in specific size
+#define FONT_REGULAR_UNREADABLE    terminus-14
+#define FONT_REGULAR_TINY          terminus-16
+#define FONT_REGULAR_SMALL         terminus-18
+#define FONT_REGULAR               terminus-20
+#define FONT_REGULAR_LARGE         terminus-24
+#define FONT_REGULAR_HUGE          terminus-32
+#define FONT_BOLD_UNREADABLE       terminus-bold-14
+#define FONT_BOLD_TINY             terminus-bold-16
+#define FONT_BOLD_SMALL            terminus-bold-18
+#define FONT_BOLD                  terminus-bold-20
+#define FONT_BOLD_LARGE            terminus-bold-24
+#define FONT_BOLD_HUGE             terminus-bold-32
+#define FONT_ITALIC_UNREADABLE     -efont-*-medium-i-*-*-14-*-*-*-*-*-*-*
+#define FONT_ITALIC_TINY           -efont-*-medium-i-*-*-16-*-*-*-*-*-*-*
+#define FONT_ITALIC_SMALL          -efont-*-medium-i-*-*-18-*-*-*-*-*-*-*
+#define FONT_ITALIC                -efont-*-medium-i-*-*-20-*-*-*-*-*-*-*
+#define FONT_ITALIC_LARGE          -efont-*-medium-i-*-*-24-*-*-*-*-*-*-*
+#define FONT_ITALIC_HUGE           FONT_ITALIC_LARGE
+#define FONT_BOLDITALIC_UNREADABLE -efont-*-bold-i-*-*-14-*-*-*-*-*-*-*
+#define FONT_BOLDITALIC_TINY       -efont-*-bold-i-*-*-16-*-*-*-*-*-*-*
+#define FONT_BOLDITALIC_SMALL      -efont-*-bold-i-*-*-18-*-*-*-*-*-*-*
+#define FONT_BOLDITALIC            -efont-*-bold-i-*-*-20-*-*-*-*-*-*-*
+#define FONT_BOLDITALIC_LARGE      -efont-*-bold-i-*-*-24-*-*-*-*-*-*-*
+#define FONT_BOLDITALIC_HUGE       FONT_BOLDITALIC_LARGE
+
+!! lists of fonts, first in specific size and subsequent without size
+#define FONTS_REGULAR    FONT_REGULAR,-efont-*-medium-*
+#define FONTS_BOLD       FONT_BOLD,-efont-*-medium-*
+#define FONTS_ITALIC     FONT_ITALIC
+#define FONTS_ITALICBOLD FONT_BOLDITALIC
+
+XTerm*font:     FONT_REGULAR
+XTerm*font1:    FONT_REGULAR_UNREADABLE
+XTerm*font2:    FONT_REGULAR_TINY
+XTerm*font3:    FONT_REGULAR_SMALL
+XTerm*font4:    FONT_REGULAR
+XTerm*font5:    FONT_REGULAR_LARGE
+XTerm*font6:    FONT_REGULAR_HUGE
+XTerm*boldFont: FONT_BOLD
+
+Rxvt*font:           FONT_REGULAR_SMALL
+Rxvt*boldFont:       FONT_BOLD_SMALL
+Rxvt*italicFont:     FONT_ITALIC_SMALL
+Rxvt*boldItalicFont: FONT_BOLDITALIC_SMALL
+
+Rxvt*keysym.M-C-1: command:\033]710;FONT_REGULAR_TINY\007\033]711;FONT_BOLD_TINY\007\033]712;FONT_ITALIC_TINY\007\033]713;FONT_BOLDITALIC_TINY\007
+Rxvt*keysym.M-C-2: command:\033]710;FONT_REGULAR\007\033]711;FONT_BOLD\007\033]712;FONT_ITALIC\007\033]713;FONT_BOLDITALIC\007
+Rxvt*keysym.M-C-3: command:\033]710;FONT_REGULAR_HUGE\007\033]711;FONT_BOLD_HUGE\007\033]712;FONT_ITALIC_HUGE\007\033]713;FONT_BOLDITALIC_HUGE\007
+
+xscreensaver.Dialog.headingFont: FONT_REGULAR
+xscreensaver.Dialog.bodyFont:    FONT_REGULAR
+xscreensaver.Dialog.labelFont:   FONT_REGULAR
+xscreensaver.Dialog.unameFont:   FONT_REGULAR
+xscreensaver.Dialog.buttonFont:  FONT_REGULAR
+xscreensaver.Dialog.dateFont:    FONT_REGULAR
+xscreensaver.passwd.passwdFont:  FONT_REGULAR
