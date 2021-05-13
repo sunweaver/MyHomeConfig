@@ -1,0 +1,5 @@
+reportbug_version "6.4.4"
+mode expert
+ui text
+offline
+smtphost "localhost:25"
