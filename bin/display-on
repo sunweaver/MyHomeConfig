@@ -21,4 +21,4 @@ eDP=$(xrandr | grep eDP | head -n1 | cut -d" " -f1)
 HDMI=$(xrandr | grep HDMI | head -n1 | cut -d" " -f1)
 
 xrandr --output "${HDMI}" --auto --left-of "${eDP}"
-xrandr --output "${HDMI}" --primary
+xrandr --output "${eDP}" --primary

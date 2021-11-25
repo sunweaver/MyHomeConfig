@@ -24,7 +24,7 @@ set -e
 RELEASE="$1"
 test -n "$RELEASE" || { echo "usage: $(basename "$0") <release-version> [<checkout>]"; exit 1; }
 
-CHECKOUT="${2:-master}"
+CHECKOUT="${2:-main}"
 
 PROJECT="$(basename $PWD)"
 

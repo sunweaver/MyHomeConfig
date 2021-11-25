@@ -7,3 +7,7 @@
 	rebase = true
 [push]
 	default = matching
+[format]
+	signOff = true
+[init]
+	defaultBranch = main

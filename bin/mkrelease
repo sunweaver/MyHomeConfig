@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 # Copyright (C) 2018 Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
 #
 # This program is free software; you can redistribute it and/or modify
