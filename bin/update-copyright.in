@@ -21,7 +21,7 @@ d=. ; while [ ! -d $d/debian -a `readlink -e $d` != / ]; do d=$d/..; done
 
 if [ -d $d/debian ]; then
 	cd "$d"
-	licensecheck -c '^((?!\.(aiff|png|flac|m4a|opus|jpg|gif|spx|mp2|mp3|oga|ogg|mp4|wav|bmp|qm|mo|gz|gpg|zck|zip|xz)$).)*$' --copyright -r `find * -type f` | /usr/lib/cdbs/licensecheck2dep5 > debian/copyright.in
+	licensecheck -c '^((?!\.(aiff|ico|png|flac|m4a|opus|jpg|gif|spx|mp2|mp3|oga|ogg|mp4|wav|bmp|qm|mo|gz|gpg|zck|zip|xz)$).)*$' --copyright -r `find * -type f` | /usr/lib/cdbs/licensecheck2dep5 | iconv -f utf-8 -t iso-8859-1 > debian/copyright.in
 	cd - 1>/dev/null
 else
 	echo "ERROR: not insinde a Debian source package tree."
